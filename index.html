@@ -1,0 +1,238 @@
+﻿
+
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Onlayn testlar platformasi</title>
+<style>
+:root{
+  --bg1:#e6f6ff; --bg2:#f0f9ff; --accent:#0b66ff;
+  --muted:#334155; --card-bg:#ffffff; --danger:#ef4444;
+  --success:#22c55e; --radius:14px; --maxw:960px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--muted)}
+.container{max-width:var(--maxw);margin:24px auto;padding:16px}
+.site-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.header-inner{text-align:center;flex:1}
+.school-name{font-size:26px;letter-spacing:1px;margin:0;color:var(--accent);text-transform:uppercase;text-shadow:0 2px 0 rgba(255,255,255,0.5)}
+.subject-sub{font-size:13px;color:rgba(1,42,74,0.8);margin-top:6px}
+.header-controls{display:flex;align-items:center;gap:12px}
+.timer-box{background:linear-gradient(90deg, rgba(11,102,255,0.08), rgba(11,102,255,0.04));padding:10px 14px;border-radius:10px;border:1px solid rgba(11,102,255,0.12);min-width:120px;text-align:center}
+.timer-label{font-size:12px;color:rgba(1,42,74,0.7)}
+.time-display{font-weight:800;font-size:18px;color:var(--muted)}
+.card{background:var(--card-bg);border-radius:var(--radius);padding:20px;box-shadow:0 12px 30px rgba(2,6,23,0.06)}
+.start-screen{text-align:center;padding:18px}
+.form-column{margin-bottom:15px}
+.form-column label{display:block;font-weight:600}
+.form-column input{width:100%;padding:10px;border-radius:8px;border:1px solid #e6f3ff;font-size:15px;margin-top:5px;box-sizing:border-box}
+.btn{padding:10px 14px;border-radius:10px;border:0;font-weight:700;cursor:pointer;transition: all 0.25s ease}
+.btn:hover{opacity:0.9;transform:translateY(-2px);}
+.btn.primary{background:var(--accent);color:white;box-shadow:0 8px 20px rgba(11,102,255,0.12)}
+.btn.secondary{background:#64748b;color:white}
+.btn.danger{background:var(--danger);color:white}
+.btn.success{background:var(--success);color:white}
+.test-area{animation:fadeIn .45s ease;display:none}
+.question-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.qcount{font-weight:700}
+.question-card{padding:18px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));box-shadow:0 6px 18px rgba(2,6,23,0.04)}
+.question-text{font-size:18px;margin-bottom:12px;color:#05263a}
+.q-image{max-width:100%;height:auto;border-radius:8px;margin:8px 0;display:block}
+.choices{display:flex;flex-direction:column;gap:10px}
+.choice label{display:flex;gap:12px;align-items:center;cursor:pointer;padding:10px;border-radius:8px;border:1px solid #eef2ff;background:white}
+.choice input[type="radio"]{transform:scale(1.05)}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.nav-left{display:flex;gap:8px}
+.nav-right{display:flex;gap:8px}
+.closed-notice{text-align:center;padding:30px;display:none}
+.site-footer{margin-top:14px;text-align:center;color:rgba(1,42,74,0.6)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(max-width:720px){
+  .site-header{flex-direction:column;gap:8px;text-align:center}
+  .header-controls{justify-content:center}
+  .container{padding:8px}
+  .form-column input{width:100%}
+}
+</style>
+</head>
+<body data-subject="Ingliz tili" data-grade="11" data-quarter="1-chorak">
+<div class="container">
+  <header class="site-header">
+    <div class="header-inner">
+      <h3 class="school-name">OLTIARIQ IXTISOSLASHTIRILGAN MAKTABI</h3>
+      <p class="subject-sub"></p>
+    </div>
+    <div class="header-controls">
+      <div id="timerBox" class="timer-box">
+        <div class="timer-label">Qolgan vaqt</div>
+        <div id="timeDisplay" class="time-display">00:00</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="card" id="mainCard">
+    <section id="startScreen" class="start-screen">
+      <h2>Testni boshlashdan oldin</h2>
+      <div class="form-column"><label>Ism<input id="firstName" type="text" placeholder="Ismingiz" /></label></div>
+      <div class="form-column"><label>Familiya<input id="lastName" type="text" placeholder="Familiyangiz" /></label></div>
+      <div class="form-column"><label>Test ID<input id="testId" type="text" placeholder="Test ID raqami" /></label></div>
+      <div class="start-controls"><button id="beginBtn" class="btn primary">Testni boshlash</button></div>
+    </section>
+
+    <section id="testArea" class="test-area">
+      <div class="question-header">
+        <div class="qcount">Savol <span id="currentNum">1</span> / <span id="totalNum">0</span></div>
+      </div>
+      <div id="questionCard" class="question-card"></div>
+      <div class="nav-row">
+        <div class="nav-left">
+          <button id="prevBtn" class="btn secondary">Oldingi</button>
+          <button id="nextBtn" class="btn primary">Keyingi </button>
+        </div>
+        <div class="nav-right">
+          <button id="finishBtn" class="btn danger">Testni yakunlash</button>
+          <button id="confirmFinishBtn" class="btn success" style="display:none">Tasdiqlash</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="closedNotice" class="closed-notice">
+      <h2>Test yakunlandi</h2>
+      <p>Natija yangi oynada ko‘rsatildi.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">© OLTIARIQ IXTISOSLASHTIRILGAN MAKTABI TEST PLATFORMASI</footer>
+</div>
+
+<script src="questions.js"></script>
+<script src="script.js"></script>
+
+
+
+<!-- ========== FOOTER ========== -->
+<footer class="site-footer" role="contentinfo">
+  <div class="footer-inner">
+    <div class="brand">
+      <span class="brand-name">Oltiariq IM</span>
+    </div>
+    <div class="copyright">
+      © 2025 Dilshodbek Borotov
+    </div>
+  </div>
+</footer>
+
+<!-- Footer uslubi -->
+<style>
+  .site-footer {
+    background: #f3f6fb; /* yengil kulrang fon */
+    border-top: 1px solid #d9e1ef;
+    padding: 14px 20px;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 18px;
+    color: #1a1f36;
+  }
+
+  .footer-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .brand-name {
+    font-weight: 600;
+    color: #0b66ff;
+  }
+
+  @media (max-width: 600px) {
+    .footer-inner {
+      flex-direction: column;
+      text-align: center;
+      gap: 6px;
+    }
+  }
+</style>
+
+
+</footer>
+
+<!-- Minimal CSS (qo'shing: style.css yoki <style> ichida) -->
+<style>
+  .site-footer{
+    background: #0b66ff10; /* yengil fon — xohlasangiz o'zgartiring */
+    backdrop-filter: blur(4px);
+    padding: 12px 16px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    font-size: 14px;
+    color: #0b254f;
+  }
+
+  .footer-inner{
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand-name{
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  @media (max-width: 560px){
+    .footer-inner{
+      flex-direction: column;
+      text-align: center;
+      gap: 6px;
+    }
+  }
+</style>
+<script>
+(function() {
+  try {
+    let text = "";
+
+    if (window.location.hostname.includes("netlify.app")) {
+      // Netlify domenidan ajratish
+      text = window.location.hostname.split(".")[0]; 
+      // ingliz-tili-11-sinf-1-chorak
+    } else {
+      // Lokal holat
+      const path = decodeURIComponent(window.location.pathname);
+      text = path.split("/").slice(-2, -1)[0];
+    }
+
+    // Defisni saqlaymiz, keyin ajratamiz
+    const words = text.split("-");
+
+    // ["ingliz","tili","11","sinf","1","chorak"]
+    const subject = words[0] + " " + words[1]; // ingliz tili
+    const grade = words[2] + "-" + words[3];   // 11-sinf
+    const quarter = words[4] + "-" + words[5]; // 1-chorak
+
+    const titleText = `${subject} ${grade} ${quarter}`;
+
+    // Title va sahifadagi yozuvni yangilaymiz
+    document.title = titleText;
+    const subEl = document.querySelector(".subject-sub");
+    if (subEl) subEl.textContent = titleText;
+
+    console.log("✅ Ajratildi:", { subject, grade, quarter });
+  } catch (e) {
+    console.error("❌ Ajratishda xato:", e);
+  }
+})();
+</script>
+
+
+
+
+</body>
+</html>
